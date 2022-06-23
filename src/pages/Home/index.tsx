@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import GamePad from "./GamePad";
 import GameHeader from "./Header";
 
@@ -11,10 +11,6 @@ const HomePage = () => {
 
       <div className="p-2">
         <GamePad />
-      </div>
-
-      <div>
-        <button>Chơi lại</button>
       </div>
     </div>
   );

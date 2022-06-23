@@ -1,3 +1,4 @@
+import { CELL_HIDDEN } from "../constants/enum";
 import { Grid, NumInPos } from "../types/sudoku";
 
 export const getRandomNumber = () => {
@@ -50,7 +51,7 @@ export const initGrid = () => {
   const defaultGrid = createDefaultGrid();
 
   // fill number to grid
-  numInPosition.forEach((uniqNum, index) => {
+  numInPosition.forEach((uniqNum) => {
     defaultGrid[uniqNum.row][uniqNum.col] = uniqNum.num;
   });
 
@@ -119,4 +120,62 @@ export const get3x3Block = (grid: Grid) => {
   return blocks;
 };
 
-export const solveGame = (grid: Grid) => {};
+export const validate = (
+  grid: Grid,
+  row: number,
+  col: number,
+  currentNum: number,
+) => {
+  for (let i = 0; i < 9; i++) {
+    const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);
+    const n = 3 * Math.floor(col / 3) + (i % 3);
+    if (
+      grid[row][i] === currentNum ||
+      grid[i][col] === currentNum ||
+      grid[m][n] === currentNum
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const solveGame = (grid: Grid) => {
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (grid[i][j] === 0) {
+        for (let k = 1; k <= 9; k++) {
+          if (validate(grid, i, j, k)) {
+            grid[i][j] = k;
+            if (solveGame(grid)) {
+              return true;
+            } else {
+              grid[i][j] = 0;
+            }
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+/**
+ *
+ * @param grid :number[][] ;
+ * @returns grid with hidden cell
+ */
+export const generateNewGame = (grid: Grid) => {
+  const newGrid = [...grid];
+  for (let i = 0; i < CELL_HIDDEN; ) {
+    let rowIndex = Math.floor(Math.random() * 9);
+    let colIndex = Math.floor(Math.random() * 9);
+    if (newGrid[rowIndex][colIndex] !== 0) {
+      newGrid[rowIndex][colIndex] = 0;
+      i++;
+    }
+  }
+
+  return newGrid;
+};

@@ -39,11 +39,17 @@ const SelectNumber: FC<Props> = ({ hideNumber, onClose, onSelect }) => {
   );
 
   return (
-    <div
-      className="absolute z-[1] opacity-1 grid grid-cols-3 min-w-[122px] shadow-lg bg-white gap-[1px] rounded overflow-hidden"
-      ref={ref}
-    >
-      {Numberic.map((num) => numBlock(num))}
+    <div ref={ref}>
+      <div
+        onClick={() => handleSelectNumber(0)}
+        className="w-5 h-5 bg-red-600 text-xs text-white cursor-pointer opacity-50 hover:opacity-100 duration-300 shadow-lg absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 z-[1] rounded-full flex justify-center items-center"
+      >
+        x
+      </div>
+
+      <div className="absolute z-[1] opacity-1 grid grid-cols-3 min-w-[122px] shadow-lg bg-white gap-[1px] rounded overflow-hidden">
+        {Numberic.map((num) => numBlock(num))}
+      </div>
     </div>
   );
 };

@@ -4,14 +4,17 @@ import { getTimeFromNumber } from "../../utils/datetime";
 type Props = {
   start?: boolean;
 };
+let intervalId: NodeJS.Timeout;
 
 const GameHeader: FC<Props> = ({ start }) => {
   const [timer, setTimer] = useState(0);
 
   useEffect(() => {
     if (start) {
+      if (intervalId) clearInterval(intervalId);
+
       let nTimer = 0;
-      setInterval(() => {
+      intervalId = setInterval(() => {
         setTimer(nTimer++);
       }, 1000);
     }

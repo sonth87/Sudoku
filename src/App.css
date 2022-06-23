@@ -28,11 +28,30 @@
   color: #61dafb;
 }
 
+.cell-error {
+  animation: twink infinite 3s linear;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes twink {
+  0% {
+    opacity: 0.7;
+    background: rgb(255, 78, 78);
+  }
+  50% {
+    opacity: 1;
+    background: unset;
+  }
+  100% {
+    opacity: 0.7;
+    background: rgb(255, 78, 78);
   }
 }
