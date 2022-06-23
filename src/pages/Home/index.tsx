@@ -12,6 +12,10 @@ const HomePage = () => {
       <div className="p-2">
         <GamePad />
       </div>
+
+      <div>
+        <button>Chơi lại</button>
+      </div>
     </div>
   );
 };

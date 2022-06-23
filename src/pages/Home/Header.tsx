@@ -19,13 +19,15 @@ const GameHeader: FC<Props> = ({ start }) => {
 
   return (
     <div>
-      <h1 className="text-2xl text-center before:content-['SUDOKU'] before:text-4xl before:h-5 before:overflow-hidden">
-        Sudoku
-      </h1>
+      <div className="h-20 flex justify-center">
+        <div className="text-2xl text-red-200 italic after:text-blue-200 text-center relative before:content-['SUDOKU'] before:text-4xl before:overflow-hidden before:absolute after:bg-cyan-900 after:content-['SUDOKU'] after:text-4xl after:h-5 after:overflow-hidden after:absolute after:left-1/2 before:-translate-x-1/2 after:-translate-x-1/2 after:pr-2"></div>
+      </div>
 
       <div className="flex justify-between mt-4">
         <div></div>
-        <div className="text-gray-400 text-xs">{getTimeFromNumber(timer)}</div>
+        <div className="text-gray-400 text-xs">
+          Time : {getTimeFromNumber(timer)}
+        </div>
       </div>
     </div>
   );
