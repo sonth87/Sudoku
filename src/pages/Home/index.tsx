@@ -10,7 +10,7 @@ const HomePage = () => {
     <div>
       <SudokuGameProvider>
         <div className="p-2">
-          <GameHeader start />
+          <GameHeader />
         </div>
 
         <div className="p-2">

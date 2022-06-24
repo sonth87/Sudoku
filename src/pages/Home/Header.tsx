@@ -4,28 +4,9 @@ import { Difficult, DifficultType } from "../../constants/enum";
 import { getTimeFromNumber } from "../../utils/datetime";
 import { useSudokuGame } from "./GameProvider";
 
-type Props = {
-  start?: boolean;
-};
-let intervalId: NodeJS.Timeout;
-
-const GameHeader: FC<Props> = ({ start }) => {
-  const { solved, difficultLevel, setDifficultLevel } = useSudokuGame();
-  const [timer, setTimer] = useState(0);
+const GameHeader = () => {
+  const { difficultLevel, setDifficultLevel, timer } = useSudokuGame();
   const [showDD, setShowDD] = useState(false);
-
-  useEffect(() => {
-    if (start) {
-      if (intervalId) clearInterval(intervalId);
-
-      let nTimer = 0;
-      intervalId = setInterval(() => {
-        setTimer(nTimer++);
-      }, 1000);
-    }
-
-    if (solved && intervalId) clearInterval(intervalId);
-  }, [start, solved]);
 
   return (
     <div>

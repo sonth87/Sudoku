@@ -31,6 +31,7 @@ type ContextType = {
   onCellChange: (info: CellInfoType) => void;
   difficultLevel: DifficultType;
   setDifficultLevel: Dispatch<SetStateAction<DifficultType>>;
+  timer: number;
 };
 
 const GameContext = createContext<ContextType>({
@@ -40,18 +41,22 @@ const GameContext = createContext<ContextType>({
   onCellChange: () => {},
   difficultLevel: DifficultType.NORMAL,
   setDifficultLevel: () => {},
+  timer: 0,
 });
 
 type Props = React.PropsWithChildren;
 
+let intervalId: NodeJS.Timeout;
 const GameProvider: FC<Props> = ({ children }) => {
   const [newGame, setNewGame] = useState<GridType>([]);
   const [userSelected, setUserSelected] = useState<GridType>([]);
   const [solvedGame, setSolvedGame] = useState<GridType>([]);
   const [solved, setSolved] = useState(false);
   const [difficultLevel, setDifficultLevel] = useState(DifficultType.NORMAL);
+  const [timer, setTimer] = useState(0);
 
   useEffect(() => {
+    if (intervalId) clearInterval(intervalId);
     const grid = initGrid(); // generate some unique number first
     // const possibleNumber = getPossibleNumberByCell(grid);
     setUserSelected([]);
@@ -64,7 +69,16 @@ const GameProvider: FC<Props> = ({ children }) => {
     setSolvedGame(solveGrid);
     setNewGame(grid3x3);
     setUserSelected(game);
+
+    let nTimer = 0;
+    intervalId = setInterval(() => {
+      setTimer(nTimer++);
+    }, 1000);
   }, [difficultLevel]);
+
+  useEffect(() => {
+    if (solved && intervalId) clearInterval(intervalId);
+  }, [solved]);
 
   const onCellChange = ({ row, col, value }: CellInfoType) => {
     const selectedObj = [...userSelected];
@@ -95,6 +109,7 @@ const GameProvider: FC<Props> = ({ children }) => {
         onCellChange,
         difficultLevel,
         setDifficultLevel,
+        timer,
       }}
     >
       {children}
