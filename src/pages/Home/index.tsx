@@ -6,11 +6,9 @@ import { SudokuGameProvider } from "./GameProvider";
 import GameHeader from "./Header";
 
 const HomePage = () => {
-  const grid = initGrid(); // generate some unique number first
-
   return (
     <div>
-      <SudokuGameProvider grid={grid}>
+      <SudokuGameProvider>
         <div className="p-2">
           <GameHeader start />
         </div>

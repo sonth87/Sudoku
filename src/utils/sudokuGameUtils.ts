@@ -1,4 +1,9 @@
-import { CELL_HIDDEN, GAME_STATUS } from "../constants/enum";
+import {
+  CellHiddenByDifficult,
+  CELL_HIDDEN,
+  DifficultType,
+  GAME_STATUS,
+} from "../constants/enum";
 import { GridType, NumInPos } from "../types/sudoku";
 
 export const getRandomNumber = () => {
@@ -241,9 +246,16 @@ export const validateGame = (grid: GridType, row?: number, col?: number) => {
  * @param grid :number[][] ;
  * @returns grid with hidden cell
  */
-export const generateNewGame = (grid: GridType) => {
+export const generateNewGame = (
+  grid: GridType,
+  difficultLevel?: DifficultType
+) => {
+  const lvl = difficultLevel
+    ? CellHiddenByDifficult[difficultLevel]
+    : CellHiddenByDifficult[DifficultType.NORMAL];
+
   const newGrid = [...grid];
-  for (let i = 0; i < CELL_HIDDEN; ) {
+  for (let i = 0; i < lvl; ) {
     let rowIndex = Math.floor(Math.random() * 9);
     let colIndex = Math.floor(Math.random() * 9);
     if (newGrid[rowIndex][colIndex] !== 0) {
