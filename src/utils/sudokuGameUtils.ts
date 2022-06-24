@@ -1,5 +1,5 @@
-import { CELL_HIDDEN } from "../constants/enum";
-import { Grid, NumInPos } from "../types/sudoku";
+import { CELL_HIDDEN, GAME_STATUS } from "../constants/enum";
+import { GridType, NumInPos } from "../types/sudoku";
 
 export const getRandomNumber = () => {
   return Math.floor(Math.random() * 9);
@@ -15,9 +15,18 @@ export const createZeroList = (): number[] => {
 
 /**
  * create 9x9 grid
+  0  0  0 | 0  0  0 | 0  0  0
+  0  1  0 | 0  0  0 | 0  0  0
+  0__0__2_|_0__0__0_|_0__0__0
+  0  0  0 | 3  0  0 | 0  0  0
+  0  0  0 | 0  4  0 | 0  0  0
+  0__0__0_|_0__0__5_|_0__0__0
+  0  0  0 | 0  0  0 | 6  0  0
+  0  0  0 | 0  0  0 | 0  7  0
+  0  0  0 | 0  0  0 | 0  0  8
  * @returns number[][] 9x9 grid
  */
-export const createDefaultGrid = (): Grid => {
+export const createDefaultGrid = (): GridType => {
   return Array(9)
     .fill(null)
     .map(() => createZeroList());
@@ -63,8 +72,8 @@ export const initGrid = () => {
  * @param grid :number[][] ;
  * @returns number[][]
  */
-export const getPossibleNumberByCell = (grid: Grid) => {
-  let possibleNumbers: Grid = [];
+export const getPossibleNumberByCell = (grid: GridType) => {
+  let possibleNumbers: GridType = [];
 
   const miniGrids = get3x3Block(grid);
 
@@ -107,12 +116,13 @@ export const getPossibleNumberByCell = (grid: Grid) => {
  * @param grid :number[][] 9x9;
  * @returns number[][] 3x3;
  */
-export const get3x3Block = (grid: Grid) => {
-  let blocks: Grid = createDefaultGrid();
+export const get3x3Block = (grid: GridType) => {
+  let blocks: GridType = [];
 
   grid.forEach((row, rowIndex) => {
     row.forEach((_, colIndex) => {
       const idx = Math.floor(rowIndex / 3) * 3 + Math.floor(colIndex / 3);
+      if (!blocks[idx]) blocks[idx] = [];
       blocks[idx].push(grid[rowIndex][colIndex]);
     });
   });
@@ -120,15 +130,35 @@ export const get3x3Block = (grid: Grid) => {
   return blocks;
 };
 
+/**
+ *
+ * @param grid :number[][] 9x9;
+ * @returns number[][] 9x9;
+ */
+export const getGridByColumns = (grid: GridType) => {
+  let newColGrid: GridType = [];
+
+  grid.forEach((row, rowIndex) => {
+    row.forEach((cell, colIndex) => {
+      if (!newColGrid?.[rowIndex]) newColGrid[rowIndex] = [];
+
+      newColGrid?.[rowIndex].push(grid[colIndex][rowIndex]);
+    });
+  });
+
+  return newColGrid;
+};
+
 export const validate = (
-  grid: Grid,
+  grid: GridType,
   row: number,
   col: number,
-  currentNum: number,
+  currentNum: number
 ) => {
   for (let i = 0; i < 9; i++) {
-    const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);
-    const n = 3 * Math.floor(col / 3) + (i % 3);
+    const m = Math.floor(row / 3) * 3 + Math.floor(i / 3);
+    const n = Math.floor(col / 3) * 3 + (i % 3);
+
     if (
       grid[row][i] === currentNum ||
       grid[i][col] === currentNum ||
@@ -140,7 +170,7 @@ export const validate = (
   return true;
 };
 
-export const solveGame = (grid: Grid) => {
+export const solveGame = (grid: GridType) => {
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
       if (grid[i][j] === 0) {
@@ -161,12 +191,57 @@ export const solveGame = (grid: Grid) => {
   return true;
 };
 
+export const validateCell = (
+  grid: GridType,
+  cols: GridType,
+  blocks: GridType,
+  row: number,
+  col: number
+) => {
+  // cell empty
+  if (grid[row][col] === 0) return GAME_STATUS.NULL;
+
+  // number in row duplicated
+  if (grid[row].filter((value) => value === grid[row][col]).length > 1)
+    return GAME_STATUS.DUPLICATE;
+
+  // number in col duplicated
+  if (cols[row].filter((value) => value === grid[row][col]).length > 1) {
+    return GAME_STATUS.DUPLICATE;
+  }
+
+  // number in block duplicated
+  if (blocks[row].filter((value) => value === grid[row][col]).length > 1)
+    return GAME_STATUS.DUPLICATE;
+
+  return "";
+};
+
+export const validateGame = (grid: GridType, row?: number, col?: number) => {
+  const blocks = get3x3Block(grid);
+  const cols = getGridByColumns(grid);
+
+  if (typeof row === "number" && typeof col === "number") {
+    const status = validateCell(grid, cols, blocks, row, col);
+    if (status !== "") return status;
+  } else {
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        const status = validateCell(grid, cols, blocks, i, j);
+        if (status !== "") return status;
+      }
+    }
+  }
+
+  return GAME_STATUS.SOLVED;
+};
+
 /**
  *
  * @param grid :number[][] ;
  * @returns grid with hidden cell
  */
-export const generateNewGame = (grid: Grid) => {
+export const generateNewGame = (grid: GridType) => {
   const newGrid = [...grid];
   for (let i = 0; i < CELL_HIDDEN; ) {
     let rowIndex = Math.floor(Math.random() * 9);
@@ -178,4 +253,31 @@ export const generateNewGame = (grid: Grid) => {
   }
 
   return newGrid;
+};
+
+/**
+ * convert row of 3x3 block to grid 9x9
+ * @param row
+ * @param col
+ * @returns new row index
+ */
+export const convertRowBlockToGrid = (row: number, col: number) => {
+  return Math.floor(row / 3) * 3 + Math.floor(col / 3);
+};
+
+/**
+ * convert col of 3x3 block to grid 9x9
+ * @param row
+ * @param col
+ * @returns new col index
+ */
+export const convertColBlockToGrid = (row: number, col: number) => {
+  return (row - Math.floor(row / 3) * 3) * 3 + (col - Math.floor(col / 3) * 3);
+};
+
+export const converCellBlockToGrid = (row: number, col: number) => {
+  const convertedRow = convertRowBlockToGrid(row, col);
+  const convertedCol = convertColBlockToGrid(row, col);
+
+  return { convertedRow, convertedCol };
 };

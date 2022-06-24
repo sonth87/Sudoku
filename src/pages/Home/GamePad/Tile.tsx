@@ -1,13 +1,17 @@
 import classNames from "classnames";
-import React, { FC, useCallback, useState } from "react";
-import { Grid } from "../../../types/sudoku";
-import { validate } from "../../../utils/sudokuGameUtils";
+import React, { FC, useCallback, useMemo, useRef, useState } from "react";
+import { GAME_STATUS } from "../../../constants/enum";
+import {
+  converCellBlockToGrid,
+  validate,
+  validateGame,
+} from "../../../utils/sudokuGameUtils";
+import { useSudokuGame } from "../GameProvider";
 import SelectNumber from "./SelectNumber";
 
 type Props = {
   defaultValue?: number;
   clickable?: boolean;
-  grid: Grid;
   rowIndex: number;
   colIndex: number;
 };
@@ -15,13 +19,19 @@ type Props = {
 const Tile: FC<Props> = ({
   defaultValue,
   clickable = false,
-  grid,
   rowIndex,
   colIndex,
 }) => {
+  const { userSelected, onCellChange } = useSudokuGame();
   const [showSelection, setShowSelection] = useState(false);
-  const [selectedNumber, setSelectedNumber] = useState(defaultValue);
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const ref = useRef<any>(null);
+
+  const { convertedRow, convertedCol } = useMemo(
+    () => converCellBlockToGrid(rowIndex, colIndex),
+    [rowIndex, colIndex]
+  );
+  const numberInCell = userSelected?.[convertedRow]?.[convertedCol] || 0;
 
   const handleOpenSelectNumber = useCallback(() => {
     setShowSelection(true);
@@ -32,34 +42,34 @@ const Tile: FC<Props> = ({
   }, []);
 
   const handleSelectNumber = (selectedNumber: number) => {
-    setSelectedNumber(selectedNumber);
+    onCellChange({
+      row: convertedRow,
+      col: convertedCol,
+      value: selectedNumber,
+    });
     setIsDuplicate(false);
 
-    if (selectedNumber > 0) {
-      const valid = validate(grid, rowIndex, colIndex, selectedNumber);
-      if (!valid) setIsDuplicate(true);
+    if (userSelected && selectedNumber > 0) {
+      const status = validateGame(userSelected, convertedRow, convertedCol);
+      if (status === GAME_STATUS.DUPLICATE) setIsDuplicate(true);
     }
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <div
         className={classNames(
-          "w-10 h-10 bg-white flex justify-center items-center hover:bg-orange-50 duration-300 relative",
+          "w-10 max-w-full pt-[100%] bg-white flex justify-center items-center hover:bg-orange-50 duration-300 relative",
           clickable ? "cursor-pointer" : "",
           defaultValue ? "bg-gray-100 text-gray-400" : "",
           showSelection ? "bg-orange-50" : "",
-          isDuplicate
-            ? "cell-error before:w-full before:h-full before:absolute before:bg-red-200 before:opacity-50 before:select-none"
-            : ""
+          isDuplicate ? "cell-error" : ""
         )}
         onClick={clickable ? handleOpenSelectNumber : undefined}
       >
-        {selectedNumber
-          ? selectedNumber
-          : defaultValue !== 0
-          ? defaultValue
-          : ""}
+        <div className="absolute w-full h-full top-0 left-0 flex justify-center items-center">
+          {numberInCell ? numberInCell : defaultValue !== 0 ? defaultValue : ""}
+        </div>
       </div>
 
       {showSelection && (
@@ -67,6 +77,7 @@ const Tile: FC<Props> = ({
           hideNumber={defaultValue}
           onClose={handleCloseSelectNumber}
           onSelect={handleSelectNumber}
+          cellRef={ref}
         />
       )}
     </div>

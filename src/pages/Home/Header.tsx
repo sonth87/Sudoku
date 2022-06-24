@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { getTimeFromNumber } from "../../utils/datetime";
+import { useSudokuGame } from "./GameProvider";
 
 type Props = {
   start?: boolean;
@@ -7,6 +8,7 @@ type Props = {
 let intervalId: NodeJS.Timeout;
 
 const GameHeader: FC<Props> = ({ start }) => {
+  const { solved } = useSudokuGame();
   const [timer, setTimer] = useState(0);
 
   useEffect(() => {
@@ -18,7 +20,9 @@ const GameHeader: FC<Props> = ({ start }) => {
         setTimer(nTimer++);
       }, 1000);
     }
-  }, [start]);
+
+    if (solved && intervalId) clearInterval(intervalId);
+  }, [start, solved]);
 
   return (
     <div>
@@ -29,7 +33,7 @@ const GameHeader: FC<Props> = ({ start }) => {
       <div className="flex justify-between mt-4">
         <div></div>
         <div className="text-gray-400 text-xs">
-          Time : {getTimeFromNumber(timer)}
+          Time : {getTimeFromNumber(timer) || "00:00:00"}
         </div>
       </div>
     </div>
