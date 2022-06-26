@@ -11,7 +11,7 @@ import React, {
 import { DifficultType, GAME_STATUS } from "../../constants/enum";
 import { GridType } from "../../types/sudoku";
 import {
-  converCellBlockToGrid,
+  converCellBtwBlockAndGrid,
   generateNewGame,
   get3x3Block,
   initGrid,
@@ -56,7 +56,7 @@ const GameProvider: FC<Props> = ({ children }) => {
   const [solved, setSolved] = useState(false);
   const [difficultLevel, setDifficultLevel] = useState(DifficultType.NORMAL);
   const [timer, setTimer] = useState(0);
-  const intervalId = useRef<any>(null)
+  const intervalId = useRef<any>(null);
 
   useEffect(() => {
     if (intervalId) clearInterval(intervalId.current);
@@ -88,7 +88,7 @@ const GameProvider: FC<Props> = ({ children }) => {
   const onCellChange = ({ row, col, value }: CellInfoType) => {
     const selectedObj = [...userSelected];
 
-    const { convertedRow, convertedCol } = converCellBlockToGrid(row, col);
+    const { convertedRow, convertedCol } = converCellBtwBlockAndGrid(row, col);
 
     if (selectedObj?.[convertedRow]?.[convertedCol] >= 0) {
       selectedObj[row][col] = value;
@@ -97,7 +97,7 @@ const GameProvider: FC<Props> = ({ children }) => {
       const check = selectedObj.find((row) => row.find((cell) => !cell));
 
       if (!check) {
-        const status = validateGame(selectedObj);
+        const status = validateGame({ grid: selectedObj });
         if (status === GAME_STATUS.SOLVED) {
           setSolved(true);
         }

@@ -2,8 +2,7 @@ import classNames from "classnames";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { GAME_STATUS } from "../../../constants/enum";
 import {
-  converCellBlockToGrid,
-  validate,
+  converCellBtwBlockAndGrid,
   validateGame,
 } from "../../../utils/sudokuGameUtils";
 import { useSudokuGame } from "../GameProvider";
@@ -28,7 +27,7 @@ const Tile: FC<Props> = ({
   const ref = useRef<any>(null);
 
   const { convertedRow, convertedCol } = useMemo(
-    () => converCellBlockToGrid(rowIndex, colIndex),
+    () => converCellBtwBlockAndGrid(rowIndex, colIndex),
     [rowIndex, colIndex]
   );
   const numberInCell = userSelected?.[convertedRow]?.[convertedCol] || 0;
@@ -50,7 +49,13 @@ const Tile: FC<Props> = ({
     setIsDuplicate(false);
 
     if (userSelected && selectedNumber > 0) {
-      const status = validateGame(userSelected, convertedRow, convertedCol);
+      console.log('tile validate ----------')
+      const status = validateGame({
+        grid: userSelected,
+        row: convertedRow,
+        col: convertedCol,
+      });
+
       if (status === GAME_STATUS.DUPLICATE) setIsDuplicate(true);
     }
   };

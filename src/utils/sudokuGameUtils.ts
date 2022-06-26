@@ -215,25 +215,42 @@ export const validateCell = (
     return GAME_STATUS.DUPLICATE;
   }
 
+  const { convertedRow } = converCellBtwBlockAndGrid(row, col);
   // number in block duplicated
-  if (blocks[row].filter((value) => value === grid[row][col]).length > 1)
+  if (
+    blocks[convertedRow].filter((value) => value === grid[row][col]).length > 1
+  )
     return GAME_STATUS.DUPLICATE;
 
   return "";
 };
 
-export const validateGame = (grid: GridType, row?: number, col?: number) => {
-  const blocks = get3x3Block(grid);
+export const validateGame = ({
+  grid,
+  block,
+  row,
+  col,
+}: {
+  grid: GridType;
+  block?: GridType;
+  row?: number;
+  col?: number;
+}) => {
+  const blocks = block || get3x3Block(grid);
   const cols = getGridByColumns(grid);
 
   if (typeof row === "number" && typeof col === "number") {
     const status = validateCell(grid, cols, blocks, row, col);
-    if (status !== "") return status;
+    if (status !== "") {
+      return status;
+    }
   } else {
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
         const status = validateCell(grid, cols, blocks, i, j);
-        if (status !== "") return status;
+        if (status !== "") {
+          return status;
+        }
       }
     }
   }
@@ -273,7 +290,7 @@ export const generateNewGame = (
  * @param col
  * @returns new row index
  */
-export const convertRowBlockToGrid = (row: number, col: number) => {
+export const convertRowBwtBlockAndGrid = (row: number, col: number) => {
   return Math.floor(row / 3) * 3 + Math.floor(col / 3);
 };
 
@@ -283,13 +300,13 @@ export const convertRowBlockToGrid = (row: number, col: number) => {
  * @param col
  * @returns new col index
  */
-export const convertColBlockToGrid = (row: number, col: number) => {
+export const convertColBtwBlockAndGrid = (row: number, col: number) => {
   return (row - Math.floor(row / 3) * 3) * 3 + (col - Math.floor(col / 3) * 3);
 };
 
-export const converCellBlockToGrid = (row: number, col: number) => {
-  const convertedRow = convertRowBlockToGrid(row, col);
-  const convertedCol = convertColBlockToGrid(row, col);
+export const converCellBtwBlockAndGrid = (row: number, col: number) => {
+  const convertedRow = convertRowBwtBlockAndGrid(row, col);
+  const convertedCol = convertColBtwBlockAndGrid(row, col);
 
   return { convertedRow, convertedCol };
 };
