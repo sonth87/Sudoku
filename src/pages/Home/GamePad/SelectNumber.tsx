@@ -53,14 +53,27 @@ const SelectNumber: FC<Props> = ({
     checkPointPosition();
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keypress", handleKeyboardPress);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keypress", handleKeyboardPress);
     };
   }, []);
 
   const handleSelectNumber = (num: number) => {
     onSelect?.(num);
     onClose?.();
+  };
+
+  const handleKeyboardPress = (event: any) => {
+    if (
+      (event.keyCode >= 49 && event.keyCode <= 57) ||
+      (event.keyCode >= 97 && event.keyCode <= 105)
+    ) {
+      // 1-9 only
+      onSelect?.(Number(event.key));
+      onClose?.();
+    }
   };
 
   const numBlock = (num: number) => (

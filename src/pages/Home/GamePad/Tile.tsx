@@ -49,7 +49,6 @@ const Tile: FC<Props> = ({
     setIsDuplicate(false);
 
     if (userSelected && selectedNumber > 0) {
-      console.log('tile validate ----------')
       const status = validateGame({
         grid: userSelected,
         row: convertedRow,
