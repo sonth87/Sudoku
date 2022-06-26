@@ -5,6 +5,7 @@ import React, {
   SetStateAction,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { DifficultType, GAME_STATUS } from "../../constants/enum";
@@ -27,6 +28,7 @@ type CellInfoType = {
 type ContextType = {
   newGame: GridType;
   userSelected: GridType;
+  solvedGame: GridType;
   solved: boolean;
   onCellChange: (info: CellInfoType) => void;
   difficultLevel: DifficultType;
@@ -37,6 +39,7 @@ type ContextType = {
 const GameContext = createContext<ContextType>({
   newGame: [],
   userSelected: [],
+  solvedGame: [],
   solved: false,
   onCellChange: () => {},
   difficultLevel: DifficultType.NORMAL,
@@ -46,7 +49,6 @@ const GameContext = createContext<ContextType>({
 
 type Props = React.PropsWithChildren;
 
-let intervalId: NodeJS.Timeout;
 const GameProvider: FC<Props> = ({ children }) => {
   const [newGame, setNewGame] = useState<GridType>([]);
   const [userSelected, setUserSelected] = useState<GridType>([]);
@@ -54,9 +56,12 @@ const GameProvider: FC<Props> = ({ children }) => {
   const [solved, setSolved] = useState(false);
   const [difficultLevel, setDifficultLevel] = useState(DifficultType.NORMAL);
   const [timer, setTimer] = useState(0);
+  const intervalId = useRef<any>(null)
 
   useEffect(() => {
-    if (intervalId) clearInterval(intervalId);
+    if (intervalId) clearInterval(intervalId.current);
+    setSolved(false);
+
     const grid = initGrid(); // generate some unique number first
     // const possibleNumber = getPossibleNumberByCell(grid);
     setUserSelected([]);
@@ -71,13 +76,13 @@ const GameProvider: FC<Props> = ({ children }) => {
     setUserSelected(game);
 
     let nTimer = 0;
-    intervalId = setInterval(() => {
+    intervalId.current = setInterval(() => {
       setTimer(nTimer++);
     }, 1000);
   }, [difficultLevel]);
 
   useEffect(() => {
-    if (solved && intervalId) clearInterval(intervalId);
+    if (solved && intervalId) clearInterval(intervalId.current);
   }, [solved]);
 
   const onCellChange = ({ row, col, value }: CellInfoType) => {
@@ -105,6 +110,7 @@ const GameProvider: FC<Props> = ({ children }) => {
       value={{
         newGame,
         userSelected,
+        solvedGame,
         solved,
         onCellChange,
         difficultLevel,

@@ -1,11 +1,12 @@
 import classNames from "classnames";
-import React, { FC, useEffect, useState } from "react";
-import { Difficult, DifficultType } from "../../constants/enum";
+import React, { useState } from "react";
+import { Difficult } from "../../constants/enum";
 import { getTimeFromNumber } from "../../utils/datetime";
 import { useSudokuGame } from "./GameProvider";
+import SelectDifficultLevel from "./SelectDifficultLevel";
 
 const GameHeader = () => {
-  const { difficultLevel, setDifficultLevel, timer } = useSudokuGame();
+  const { difficultLevel, timer } = useSudokuGame();
   const [showDD, setShowDD] = useState(false);
 
   return (
@@ -26,27 +27,10 @@ const GameHeader = () => {
             {Difficult[difficultLevel]}
           </div>
 
-          {showDD && (
-            <div className="absolute z-[2] bg-white py-2 rounded space-y-0.5 mt-1">
-              {Object.keys(Difficult).map((d) => (
-                <div
-                  key={d}
-                  className={classNames(
-                    "hover:bg-blue-100 duration-300 px-4 py-1",
-                    d === difficultLevel
-                      ? "bg-blue-100 cursor-default"
-                      : "cursor-pointer"
-                  )}
-                  onClick={() => {
-                    setDifficultLevel(d as DifficultType);
-                    setShowDD(false);
-                  }}
-                >
-                  {Difficult[d]}
-                </div>
-              ))}
-            </div>
-          )}
+          <SelectDifficultLevel
+            isOpen={showDD}
+            onClose={() => setShowDD(false)}
+          />
         </div>
         <div className="text-gray-400 text-xs">
           Time : {getTimeFromNumber(timer) || "00:00:00"}
